@@ -39,25 +39,48 @@ while len(filtered_repos) < TARGET_REPO_COUNT:
 
     for repo in repos:
         commits_url = repo["commits_url"].split("{")[0]
-        commit_count = len(requests.get(commits_url, headers=headers).json())
+        # contributors_url = repo["contributors_url"]
+        # response_contributors = requests.get(contributors_url, headers=headers)
         
+        # if response_contributors.status_code == 200:
+        #     contributors = response_contributors.json()
+        #     commit_count = sum(contributor.get("contributions", 0) for contributor in contributors)
+        # else:
+        #     commit_count = 0
+            # commit_count = len(requests.get(commits_url, headers=headers).json())
+        
+        main_branch_url = f"https://api.github.com/repos/{repo['owner']['login']}/{repo['name']}/branches/{repo['default_branch']}"
+        response_branch = requests.get(main_branch_url, headers=headers)
+
+        print(response_branch.json())
+        
+        if response_branch.status_code == 200:
+            branch_data = response_branch.json()
+            commit_count = branch_data['commit']['commit_count'] if 'commit_count' in branch_data['commit'] else 0
+        else:
+            commit_count = 0 
+
+        print(commit_count)
+        break
+
         if commit_count >= MIN_COMMITS:
             filtered_repos.append({
                 "name": repo["name"],
                 "url": repo["html_url"],
                 "stars": repo["stargazers_count"],
                 "forks": repo["forks_count"],
-                "commits": commit_count
+                "commits": commit_count,
+                "size": repo["size"]  # Include the size of the repo
             })
 
         if len(filtered_repos) == TARGET_REPO_COUNT:
             break
-
+    break
     params["page"] += 1
 
 # Save the filtered repositories to a CSV file
 with open('filtered_repositories.csv', 'w', newline='') as csvfile:
-    fieldnames = ["name", "url", "stars", "forks", "commits"]
+    fieldnames = ["name", "url", "stars", "forks", "commits", "size"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
     writer.writeheader()
