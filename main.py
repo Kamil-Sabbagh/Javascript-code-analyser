@@ -1,5 +1,12 @@
 import requests
 import csv
+import re
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 
 # Parameters
 LANGUAGE = "javascript"
@@ -11,7 +18,8 @@ GITHUB_API_URL = "https://api.github.com/search/repositories"
 TARGET_REPO_COUNT = 100
 
 headers = {
-    "Accept": "application/vnd.github.v3+json"
+    "Accept": "application/vnd.github.v3+json",
+    "Authorization": f"Bearer {os.getenv('GITHUB_PAT')}"
 }
 
 # Prepare the initial search query
@@ -27,6 +35,18 @@ params = {
 
 filtered_repos = []
 
+base_url = 'https://api.github.com'
+
+def commitCount(u, r):
+    print(f"https://github.com/{u}/{r}", flush=True)
+    while True:
+        try:
+            response = requests.get('https://api.github.com/repos/{}/{}/commits?per_page=1'.format(u, r), headers=headers, timeout=3)
+            break
+        except:
+            pass
+    return re.search('\d+$', response.links['last']['url']).group()
+
 while len(filtered_repos) < TARGET_REPO_COUNT:
     print(f"Fetching page {params['page']} from GitHub...")
     response = requests.get(GITHUB_API_URL, headers=headers, params=params)
@@ -39,31 +59,10 @@ while len(filtered_repos) < TARGET_REPO_COUNT:
 
     for repo in repos:
         commits_url = repo["commits_url"].split("{")[0]
-        # contributors_url = repo["contributors_url"]
-        # response_contributors = requests.get(contributors_url, headers=headers)
         
-        # if response_contributors.status_code == 200:
-        #     contributors = response_contributors.json()
-        #     commit_count = sum(contributor.get("contributions", 0) for contributor in contributors)
-        # else:
-        #     commit_count = 0
-            # commit_count = len(requests.get(commits_url, headers=headers).json())
-        
-        main_branch_url = f"https://api.github.com/repos/{repo['owner']['login']}/{repo['name']}/branches/{repo['default_branch']}"
-        response_branch = requests.get(main_branch_url, headers=headers)
+        commit_count = commitCount(repo['owner']['login'], repo['name'])
 
-        print(response_branch.json())
-        
-        if response_branch.status_code == 200:
-            branch_data = response_branch.json()
-            commit_count = branch_data['commit']['commit_count'] if 'commit_count' in branch_data['commit'] else 0
-        else:
-            commit_count = 0 
-
-        print(commit_count)
-        break
-
-        if commit_count >= MIN_COMMITS:
+        if int(commit_count) >= MIN_COMMITS:
             filtered_repos.append({
                 "name": repo["name"],
                 "url": repo["html_url"],
@@ -73,14 +72,14 @@ while len(filtered_repos) < TARGET_REPO_COUNT:
                 "size": repo["size"]  # Include the size of the repo
             })
 
+
         if len(filtered_repos) == TARGET_REPO_COUNT:
             break
-    break
     params["page"] += 1
 
 # Save the filtered repositories to a CSV file
 with open('filtered_repositories.csv', 'w', newline='') as csvfile:
-    fieldnames = ["name", "url", "stars", "forks", "commits", "size"]
+    fieldnames = ["name", "url", "stars", "forks","commits", "size"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
     writer.writeheader()
