@@ -17,7 +17,7 @@ TARGET_REPO_COUNT = 110
 
 headers = {
     "Accept": "application/vnd.github.v3+json",
-    "Authorization": f"Bearer {os.getenv('GITHUB_PAT')}"
+    "Authorization": f"Bearer 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"
 }
 
 # Prepare the initial search query
@@ -25,7 +25,7 @@ query = f"language:{LANGUAGE} stars:>{MIN_STARS} forks:>{MIN_FORKS} archived:fal
 
 params = {
     "q": query,
-    "sort": "size",
+    "sort": "stars",
     "order": "desc",
     "per_page": PER_PAGE,
     "page": 1
@@ -61,6 +61,8 @@ def is_majority_language_javascript(owner, repo_name):
     return False
 
 while len(filtered_repos) < TARGET_REPO_COUNT:
+
+    
     response = requests.get(GITHUB_API_URL, headers=headers, params=params)
 
     if response.status_code != 200:
@@ -70,36 +72,40 @@ while len(filtered_repos) < TARGET_REPO_COUNT:
     repos = response.json()["items"]
 
     for repo in repos:
-        owner = repo['owner']['login']
-        repo_name = repo['name']
+        try: 
+            owner = repo['owner']['login']
+            repo_name = repo['name']
 
-        # Check if repo is a dataset repository
-        if is_dataset_repo(repo):
-            print(f"Repository {repo_name} is a dataset repository. Filtering out.")
-            print(repo['html_url'])
-            continue
+            # Check if repo is a dataset repository
+            if is_dataset_repo(repo):
+                print(f"Repository {repo_name} is a dataset repository. Filtering out.")
+                print(repo['html_url'])
+                continue
 
-        # Check if majority of the code is in JavaScript
-        if not is_majority_language_javascript(owner, repo_name):
-            print(f"Repository {repo_name} does not have a majority of its code in JavaScript. Filtering out.")
-            print(repo['html_url'])
-            continue
+            # Check if majority of the code is in JavaScript
+            if not is_majority_language_javascript(owner, repo_name):
+                print(f"Repository {repo_name} does not have a majority of its code in JavaScript. Filtering out.")
+                print(repo['html_url'])
+                continue
 
-        commit_count = commitCount(owner, repo_name)
+            commit_count = commitCount(owner, repo_name)
 
-        if int(commit_count) >= MIN_COMMITS:
-            filtered_repos.append({
-                "name": repo_name,
-                "url": repo["html_url"],
-                "stars": repo["stargazers_count"],
-                "forks": repo["forks_count"],
-                "commits": commit_count,
-                "size": repo["size"]
-            })
-            print(f"Repository {repo_name} is OK.")
+            if int(commit_count) >= MIN_COMMITS:
+                filtered_repos.append({
+                    "name": repo_name,
+                    "url": repo["html_url"],
+                    "stars": repo["stargazers_count"],
+                    "forks": repo["forks_count"],
+                    "commits": commit_count,
+                    "size": repo["size"]
+                })
+                print(f"Repository {repo_name} is OK.")
 
-        if len(filtered_repos) == TARGET_REPO_COUNT:
-            break
+            print(f"{len(filtered_repos)}/{TARGET_REPO_COUNT}")
+            if len(filtered_repos) == TARGET_REPO_COUNT:
+                break
+        except:
+            print(f"Something went wrong with this repo: {repo['name']}")
 
     params["page"] += 1
 
