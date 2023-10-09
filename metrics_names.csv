@@ -1,0 +1,52 @@
+Abbreviation,Description
+TLLOC,Total Logical Lines of Code
+CR,Clone Risk
+NCR,Normalized Clone Radius
+CLC,Clone Line Coverage
+CLLC,Clone Logical Line Coverage
+CCO,Clone Complexity
+LLDC,Logical Lines of Duplicated Code
+LDC,Lines of Duplicated Code
+CI,Clone Instances
+CEG,Clone Elimination Gain
+CEE,Clone Elimination Effort
+TLOC,Total Lines of Code
+CC,Clone Coverage
+TAD,Total API Documentation 
+TPDA,Total Public Documented API
+TNFI,Total Number of Files
+TNG,Total Number of Getters
+TNM,Total Number of Methods 
+TNOS,Total Number of Statements
+TNS,Total Number of Setters 
+TPUA,Total Public Undocumented API
+TCLOC,Total Comment Lines of Code
+TNDI,Total Number of Directories
+WarningBlocker,Warning Level: Blocker
+WarningCritical,Warning Level: Critical
+WarningMajor,Warning Level: Major
+WarningMinor,Warning Level: Minor
+WarningInfo,Warning Level: Info
+TNCL,Total Number of Classes
+CCL,Clone Classes
+ESLINT_CSU,constructor-super
+ESLINT_E,eqeqeq
+ESLINT_JSNC,no-console
+ESLINT_JSNEA,no-ex-assign
+ESLINT_NUES,no-useless-escape
+ESLINT_TSNR,no-redeclare
+ESLINT_TSNES,no-extra-semi
+ESLINT_TSNUA,no-unsafe-argument
+ESLINT_TSNUV,no-unused-vars
+ESLINT_NUN,no-undef
+ESLINT_TSNUR,no-unsafe-return
+ESLINT_TSNMN,no-magic-numbers
+ESLINT_TSNUCA,no-unsafe-call
+ESLINT_TSNUAS,no-unsafe-assignment
+ESLINT_TSNUMA,no-unsafe-member-access
+ESLINT_TSRPO,restrict-plus-operands
+ESLINT_TSUM,unbound-method
+ESLINT_TSNIAC,no-implicit-any-catch
+ESLINT_TSNFP,no-floating-promises
+ESLINT_TSNTA,no-this-alias
+ESLINT_TSNEA,no-explicit-any
